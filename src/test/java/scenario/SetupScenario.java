@@ -77,9 +77,51 @@ public class SetupScenario {
                 return session;
             }).pause(Duration.ofSeconds(Config.REQUEST_DELAY_SECONDS));
 
-    public static ScenarioBuilder setup = scenario("Monolith Simulation")
+    private static final ChainBuilder createAndLoginUserNoSave =
+            exec(session -> {
+                String sessionId = session.getString("gatling.sessionId");
+                DataHolder.data.put(sessionId + "_username", "user_" + RandomUtils.generateRandomMacAddress());
+                DataHolder.data.put(sessionId + "_password", "Password123!");
+                return session;
+            })
+            .exec(http("Register User")
+                    .post("/user/auth/register")
+                    .header("Content-Type", "application/json")
+                    .body(StringBody(session -> {
+                        String username = DataHolder.getData(
+                                session.getString("gatling.sessionId") + "_username"
+                        );
+                        String password = DataHolder.getData(
+                                session.getString("gatling.sessionId") + "_password"
+                        );
+                        return String.format("{ \"username\": \"%s\", \"password\": \"%s\" }", username, password);
+                    }))
+            ).pause(Duration.ofSeconds(Config.REQUEST_DELAY_SECONDS))
+            .exec(http("Login User")
+                    .get("/user/auth/login")
+                    .header("Content-Type", "application/json")
+                    .body(StringBody(session -> {
+                        String username = DataHolder.getData(
+                                session.getString("gatling.sessionId") + "_username"
+                        );
+                        String password = DataHolder.getData(
+                                session.getString("gatling.sessionId") + "_password"
+                        );
+                        return String.format("{ \"username\": \"%s\", \"password\": \"%s\" }", username, password);
+                    }))
+            )
+            .exec(session -> {
+                DataHolder.data.remove(session.getString("gatling.sessionId") + "_username");
+                DataHolder.data.remove(session.getString("gatling.sessionId") + "_password");
+                return session;
+            });
+
+    public static ScenarioBuilder setup = scenario("Initial Authentication and Device Linking Scenario")
             .exec(createAndLoginUser)
             .exec(createAndLinkDevice)
             .exec(createAndLinkDevice)
             .exec(createAndLinkDevice);
+
+    public static ScenarioBuilder continuousAuth = scenario("Authentication")
+            .exec(createAndLoginUserNoSave);
 }

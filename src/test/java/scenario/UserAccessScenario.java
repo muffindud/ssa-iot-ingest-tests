@@ -43,4 +43,10 @@ public class UserAccessScenario {
     public static ScenarioBuilder userAccessScenario = scenario("User Access Scenario")
             .exec(getDevices)
             .exec(retrieveDeviceData);
+
+    public static ScenarioBuilder getDeviceScenario = scenario("Get Device Scenario")
+            .exec(getDevices);
+
+    public static ScenarioBuilder retrieveDataScenario = scenario("Retrieve Data Scenario")
+            .exec(retrieveDeviceData);
 }

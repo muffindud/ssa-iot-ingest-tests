@@ -27,10 +27,15 @@ public class ServicesSimulation extends io.gatling.javaapi.core.Simulation {
                         IotIngestScenario.mqttScenario.injectOpen(
                                 atOnceUsers(5)
                         ).protocols(mqttProtocol),
-                        UserAccessScenario.userAccessScenario.injectOpen(
-                                rampUsersPerSec(Config.DURATION_SECONDS).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+//                        UserAccessScenario.userAccessScenario.injectOpen(
+//                                rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+//                        ),
+                        UserAccessScenario.getDeviceScenario.injectOpen(atOnceUsers(1)).andThen(
+                                UserAccessScenario.retrieveDataScenario.injectOpen(
+                                        rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+                                )
                         ),
-                        SetupScenario.setup.injectOpen(
+                        SetupScenario.continuousAuth.injectOpen(
                                 rampUsersPerSec(Config.DURATION_SECONDS).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
                         )
                 )

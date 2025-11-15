@@ -22,11 +22,16 @@ public class MonolithSimulation extends Simulation {
                         IotIngestScenario.httpScenario.injectOpen(
                                 atOnceUsers(5)
                         ),
-                        UserAccessScenario.userAccessScenario.injectOpen(
-                                rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+//                        UserAccessScenario.userAccessScenario.injectOpen(
+//                                rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+//                        ),
+                        UserAccessScenario.getDeviceScenario.injectOpen(atOnceUsers(1)).andThen(
+                                UserAccessScenario.retrieveDataScenario.injectOpen(
+                                        rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+                                )
                         ),
-                        SetupScenario.setup.injectOpen(
-                                rampUsersPerSec(Config.START_USER_COUNT).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+                        SetupScenario.continuousAuth.injectOpen(
+                                rampUsersPerSec(Config.START_AUTH_USER_COUNT).to(Config.MAX_AUTH_USER_COUNT).during(Config.DURATION_SECONDS)
                         )
                 )
         ).protocols(httpProtocol);
