@@ -19,8 +19,7 @@ public class UserAccessScenario {
                     .check(jsonPath("$.device_ids[*]").findAll().saveAs("deviceIds"))
             ).pause(Duration.ofSeconds(1))
             .exec(session -> {
-                DataHolder.addToListData("deviceIds", session.getList("deviceIds"));
-                System.out.println("Retrieved Device IDs: " + DataHolder.listData.get("deviceIds"));
+                DataHolder.listData.put("deviceIds", session.getList("deviceIds"));
                 return session;
             });
 
@@ -31,7 +30,6 @@ public class UserAccessScenario {
                     .header("Authorization", session -> "Bearer " + DataHolder.getData("accessToken"))
                     .body(StringBody(session -> {
                         List<Object> deviceIds = DataHolder.listData.get("deviceIds");
-                        System.out.println("Using Device ID for Retrieval: " + deviceIds.get(0));
                         if (deviceIds.isEmpty()) {
                             return "{ \"device_id\": null, \"size\": 10, \"page\": 1 }";
                         } else {
