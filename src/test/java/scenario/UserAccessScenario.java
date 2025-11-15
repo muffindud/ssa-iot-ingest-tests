@@ -2,6 +2,7 @@ package scenario;
 
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
+import utils.Config;
 import utils.DataHolder;
 
 import java.time.Duration;
@@ -17,7 +18,7 @@ public class UserAccessScenario {
                     .header("Content-Type", "application/json")
                     .header("Authorization", session -> "Bearer " + DataHolder.getData("accessToken"))
                     .check(jsonPath("$.device_ids[*]").findAll().saveAs("deviceIds"))
-            ).pause(Duration.ofSeconds(1))
+            ).pause(Duration.ofSeconds(Config.REQUEST_DELAY_SECONDS))
             .exec(session -> {
                 DataHolder.listData.put("deviceIds", session.getList("deviceIds"));
                 return session;
@@ -37,7 +38,7 @@ public class UserAccessScenario {
                         }
                     }))
                     .asJson()
-            ).pause(Duration.ofSeconds(1));
+            ).pause(Duration.ofSeconds(Config.REQUEST_DELAY_SECONDS));
 
     public static ScenarioBuilder userAccessScenario = scenario("User Access Scenario")
             .exec(getDevices)

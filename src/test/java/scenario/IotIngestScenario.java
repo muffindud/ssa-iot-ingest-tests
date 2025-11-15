@@ -2,6 +2,7 @@ package scenario;
 
 import io.gatling.javaapi.core.Body;
 import io.gatling.javaapi.core.ScenarioBuilder;
+import utils.Config;
 import utils.DataHolder;
 
 import java.time.Duration;
@@ -16,25 +17,26 @@ public class IotIngestScenario {
         String deviceToken = (String) DataHolder.listData.get("deviceTokens").get(0);
         return String.format("{\"token\": \"%s\", \"data\": {\"temperature\": 15.6} }", deviceToken);
     });
-    private static final Body HTTP_BODY = StringBody("{\"temperature\": 15.6}\"");
+    private static final Body HTTP_BODY = StringBody("{\"temperature\": 15.6}");
 
     public static ScenarioBuilder mqttScenario = scenario("IOT MQTT Publish")
             .exec(mqtt("Connect MQTT Client").connect())
-            .repeat(20).on(exec(mqtt("Publish")
+            .repeat(Config.PUBLISH_REPEAT_COUNT).on(exec(mqtt("Publish")
                             .publish(MQTT_TOPIC)
                             .message(MQTT_BODY)
-                    ).pause(Duration.ofSeconds(3))
+                    ).pause(Duration.ofSeconds(Config.PUBLISH_DELAY_SECONDS))
             );
 
     public static ScenarioBuilder httpScenario = scenario("Http IOT Ingest" )
             .exec(session -> session.set("deviceToken", DataHolder.data.get("deviceToken")))
-            .repeat(20).on(exec(http("HTTP IOT Ingest")
+            .repeat(Config.PUBLISH_REPEAT_COUNT).on(exec(http("HTTP IOT Ingest")
                             .post("/iot/ingest/publish")
+                            .header("Content-Type", "application/json")
                             .header("Authorization", session -> {
                                 String deviceToken = DataHolder.listData.get("deviceTokens").get(0).toString();
                                 return "Bearer " + deviceToken;
                             })
                             .body(HTTP_BODY)
-                    ).pause(Duration.ofSeconds(3))
+                    ).pause(Duration.ofSeconds(Config.PUBLISH_DELAY_SECONDS))
             );
 }

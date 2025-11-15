@@ -5,6 +5,7 @@ import io.gatling.javaapi.mqtt.MqttProtocolBuilder;
 import scenario.IotIngestScenario;
 import scenario.SetupScenario;
 import scenario.UserAccessScenario;
+import utils.Config;
 
 import static io.gatling.javaapi.core.CoreDsl.rampUsersPerSec;
 import static io.gatling.javaapi.core.OpenInjectionStep.atOnceUsers;
@@ -25,9 +26,12 @@ public class ServicesSimulation extends io.gatling.javaapi.core.Simulation {
                 SetupScenario.setup.injectOpen(atOnceUsers(1)).andThen(
                         IotIngestScenario.mqttScenario.injectOpen(
                                 atOnceUsers(5)
-                        ).protocols(),
+                        ).protocols(mqttProtocol),
                         UserAccessScenario.userAccessScenario.injectOpen(
-                                rampUsersPerSec(1).to(10).during(60)
+                                rampUsersPerSec(Config.DURATION_SECONDS).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
+                        ),
+                        SetupScenario.setup.injectOpen(
+                                rampUsersPerSec(Config.DURATION_SECONDS).to(Config.MAX_USER_COUNT).during(Config.DURATION_SECONDS)
                         )
                 )
         ).protocols(httpProtocol);
