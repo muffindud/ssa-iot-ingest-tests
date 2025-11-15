@@ -24,6 +24,12 @@
       <version>${gatling.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.gatling</groupId>
+      <artifactId>gatling-mqtt-java</artifactId>
+      <version>${gatling.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
